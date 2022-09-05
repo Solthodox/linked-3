@@ -1,13 +1,15 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Referrals.sol";
-import "./Salary.sol";
+import "../Salary.sol";
 import "./UserBase.sol";
 import "./CompanyBase.sol";
 contract JobSearch is userBase , CompanyBase , Referrals{
 
     uint256 private _offerCount;
     address public tokenAddress;
+    mapping(address => bool) private _isSalaryVerified;
     constructor (address _tokenAddress){
         tokenAddress = _tokenAddress;
     }
@@ -100,13 +102,14 @@ contract JobSearch is userBase , CompanyBase , Referrals{
             compensations,
             collateral
         );
+        _isSalaryVerified[address(newSalaryContract)]=true;
         _hire(_addressToCompany[msg.sender]);
         _getHired(developer , address(newSalaryContract));
 
     }
 
     function closeOffer(uint256 offerId) public onlyCompanies{
-        require()
+        
     }
     function newUserPrice() public view returns(uint256){
         return newJobOfferPrice() * 2;
@@ -121,6 +124,9 @@ contract JobSearch is userBase , CompanyBase , Referrals{
 
     }
 
+    function _salaryVerified(address contractAddress) internal view returns(bool){
+        return _isSalaryVerified[contractAddress];
+    }
 
 
 }

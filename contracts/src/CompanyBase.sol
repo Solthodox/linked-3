@@ -1,5 +1,5 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-
 contract CompanyBase{
     modifier onlyCompanies(){
         require(_companies[_addressToCompany[msg.sender]].owner!=address(0), "Company not found");

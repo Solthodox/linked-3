@@ -1,5 +1,5 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-
 contract Referrals{
 
     mapping(address => uint256) private _referralBalances;

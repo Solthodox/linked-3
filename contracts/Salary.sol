@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 pragma solidty ^0.8.9;
 
@@ -148,7 +149,7 @@ contract Salary {
 
     function _tokenByIndex(address _tokenAddress) internal view returns(uint256){
          for(uint256 i=0; i< _paymentTokens.length; i++;){
-            if(_paymentTokens[i]==_tokenAddress
+            if(_paymentTokens[i]==_tokenAddress)
                 return _paymentTokens[i];
             
         }
