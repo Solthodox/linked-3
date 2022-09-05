@@ -2,9 +2,15 @@
 import "./src/JobSearch.sol";
 import "./Collab.sol";
 pragma solidity ^0.8.0;
+/**
+  *Main contract of the project
+  *Inherits from JobSearch
+ */
+
 contract Main is JobSearch{
-    uint256 _collabCount;
-    mapping(address => bool) private _isCollabVerified; 
+    uint256 _collabCount;//indexer
+    mapping(address => bool) private _isCollabVerified; //proof that a contract object has been created from
+   //the struct object of a project    
 
     struct Project{
         uint256 id;
@@ -15,7 +21,7 @@ contract Main is JobSearch{
         uint256 deadLine;
     }
 
-    Project[] private _projects;
+    Project[] private _projects;//list with all the project proposals in it
 
     modifier onlyUsers(){
         (address a , , , , , ,) = getUser(msg.sender);
@@ -23,9 +29,15 @@ contract Main is JobSearch{
         _;
     }
 
-    constructor(address tokenAddress) JobSearch(tokenAddress){
+    constructor(address tokenAddress) JobSearch(tokenAddress){}
 
-    }
+    /**
+    **@notice Function to make a collaboration proposal
+    **@dev Should include : 
+        - The url of the github repo
+        - Number of participants
+        - The time it will be available for
+     */
 
     function collabProposal(string memory gitHubURI ,uint256 participants , uint256 waitTime) public onlyUsers{
         require(
@@ -41,15 +53,29 @@ contract Main is JobSearch{
         _collabCount ++;
     }
 
+    /**
+    *Function to join a collaboration proposal
+     */
     
     function joinCollab(uint256 collabId) public onlyUsers{
         require(_collabCount>collabId , "Collab not found.");
         _projects[collabId].candidates.push(msg.sender);
     }
-
+    /**
+    ** @notice Function to create start the project 
+    * @dev Should check if
+        - The funciton caller is the creator of the proposal
+        - The deadLine has expired
+        - Should check that the selected candidates for this project
+        have requested to join
+        - Creates a new (Collab.sol) contract 
+     */
     function submit(uint256 collabId , address [] memory selectedCandidates) public onlyUsers{
         Project memory collab = _projects[collabId];
-        require(collab.creator==msg.sender , "You are not the creator of this project.");
+        require(collab.creator==msg.sender 
+            && block.timestamp>collab.deadLine
+            , "You are not the creator of this project.");
+        
         uint256 found;
         Collab newCollab = new Collab(collab.githubURI , selectedCandidates, msg.sender);
         for(uint256 i=0 ; i<collab.candidates.length; i++){
@@ -67,11 +93,16 @@ contract Main is JobSearch{
 
     }
 
+    /**
+    *@notice Checks if a smart contract is a Collab contract created by this
+     */
 
     function _collabVerified(address contractAddress) internal view returns(bool){
         return _isCollabVerified[contractAddress];
     }
-
+    /**
+    @ dev Update the _beforeUserUpdate hook to restrict the UserBase.sol special functions
+     */
     function _beforeUserUpdate(address msgSender) internal virtual override{
         require(_salaryVerified(msgSender));
     }

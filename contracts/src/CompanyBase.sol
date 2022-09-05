@@ -1,11 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+
+/**
+* @notice Contract that stores all the data and functions related to companies
+ */
+
 contract CompanyBase{
     modifier onlyCompanies(){
         require(_companies[_addressToCompany[msg.sender]].owner!=address(0), "Company not found");
         _;
     }
-
+    // Struct object of company
     struct Company{
         address owner;
         string name;
@@ -14,8 +19,12 @@ contract CompanyBase{
     }
 
     uint256 private _companyCount;
-    Company[] private _companies;
-    mapping(address=> uint256) private _addressToCompany;
+    Company[] private _companies; //list of the companies
+    mapping(address=> uint256) private _addressToCompany; //mapping from address to Company struct
+
+    /**
+    * Adds a new company to the list
+     */
 
     function _addCompany(string memory _name, string memory _mainPageURI , address account) internal{
        _companies[_companyCount].name = _name;
@@ -25,7 +34,9 @@ contract CompanyBase{
        _addressToCompany[account] = _companyCount;
         _companyCount++;
     }
-
+    /**
+    * Adds a new member to the company's team
+     */
     function _hire(uint256 _companyId , address _account) internal{
         _companies[_companyId].team.push(_account);
     }

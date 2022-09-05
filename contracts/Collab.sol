@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 interface Main{
     function _addExperience(address _account) external;
     function _upgradeTrust(address _account , int256 _newTrust) external;
+    function _commentProfile(address _from , address _to ,string memory _comment) external;
 }
 
 contract Collab {

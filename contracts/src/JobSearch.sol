@@ -5,6 +5,10 @@ import "./Referrals.sol";
 import "../Salary.sol";
 import "./UserBase.sol";
 import "./CompanyBase.sol";
+
+/**
+ */
+
 contract JobSearch is userBase , CompanyBase , Referrals{
 
     uint256 private _offerCount;
