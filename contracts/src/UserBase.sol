@@ -29,6 +29,7 @@ contract userBase{
     function _addUser(string memory _githubURI, address _account) internal{
         _accounts[_userCount].account = _account;
         _accounts[_userCount].githubURI = _githubURI;
+        _accounts[_userCount].trustLevel = int256(1);
         _addressToUser[msg.sender] = _userCount;
         _userCount++;
     }
@@ -38,16 +39,14 @@ contract userBase{
     function _commentProfile(address _from , address _to ,string memory _comment) external{
         _beforeUserUpdate(msg.sender);
         require(bytes(_accounts[_addressToUser[msg.sender]].githubURI).length>0);
-        string memory text = string(bytes.concat(abi.encodePacked(_from), "  : ", bytes(_comment)));
-
-        _addressToUser[_to].comments.push(text);
+        _accounts[_addressToUser[_to]].comments.push(_comment);
     }
     /**
     * Internal function to add experience to a certain use's profile after finishing a project
      */
     function _addExperience(address _account) external{
         _beforeUserUpdate(msg.sender);
-        _addressToUser[_account].experience++;
+        _accounts[_addressToUser[_account]].experience++;
     }
     /**
     * Adds a salary contract to a certain user's profile
@@ -61,7 +60,7 @@ contract userBase{
     function _updateTrust(address _account , int256 _newTrust) external{
         require(_newTrust!=int256(0));
         _beforeUserUpdate(msg.sender);
-        _addressToUser[_account].trustLevel += _newTrust;
+        _accounts[_addressToUser[_account]].trustLevel += _newTrust;
     }
     /**
     * Checks if an address is a contract using assembly
