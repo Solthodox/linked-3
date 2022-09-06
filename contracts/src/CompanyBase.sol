@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
 /**
 * @notice Contract that stores all the data and functions related to companies
@@ -40,5 +40,13 @@ contract CompanyBase{
     function _hire(uint256 _companyId , address _account) internal{
         _companies[_companyId].team.push(_account);
     }
+
+    function addressToCompany(address account) internal view returns(uint256){
+        return _addressToCompany[account];
+    }
+
+    function Companies() public view returns(Company [] memory){
+        return _companies;
+    } 
 
 }

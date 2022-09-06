@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 import "./src/JobSearch.sol";
 import "./Collab.sol";
-pragma solidity ^0.8.0;
+
+
+
 /**
   *Main contract of the project
   *Inherits from JobSearch
  */
 
-contract Main is JobSearch{
+contract main is JobSearch{
     uint256 _collabCount;//indexer
     mapping(address => bool) private _isCollabVerified; //proof that a contract object has been created from
    //the struct object of a project    
@@ -23,11 +26,7 @@ contract Main is JobSearch{
 
     Project[] private _projects;//list with all the project proposals in it
 
-    modifier onlyUsers(){
-        (address a , , , , , ,) = getUser(msg.sender);
-        require(a!=address(0), "User not registered");  
-        _;
-    }
+
 
     constructor(address tokenAddress) JobSearch(tokenAddress){}
 
@@ -71,20 +70,18 @@ contract Main is JobSearch{
         - Creates a new (Collab.sol) contract 
      */
     function submit(uint256 collabId , address [] memory selectedCandidates) public onlyUsers{
-        Project memory collab = _projects[collabId];
-        require(collab.creator==msg.sender 
-            && block.timestamp>collab.deadLine
+        Project memory _collab = _projects[collabId];
+        require(_collab.creator==msg.sender 
+            && block.timestamp > _collab.deadLine
             , "You are not the creator of this project.");
         
         uint256 found;
-        Collab newCollab = new Collab(collab.githubURI , selectedCandidates, msg.sender);
-        for(uint256 i=0 ; i<collab.candidates.length; i++){
+        Collab newCollab = new Collab(_collab.gitHubURI , selectedCandidates, msg.sender , address(this));
+        for(uint256 i=0 ; i<_collab.candidates.length; i++){
             for(uint256 j=0; i<selectedCandidates.length ; i++){
-                if(collab.candidates[i] == selectedCandidates[j]){
+                if(_collab.candidates[i] == selectedCandidates[j]){
                     found++;
-                    selectedCandidates[j].projects.push(
-                        address(newCollab)
-                    );
+                    _joinCollab(selectedCandidates[j] , address(newCollab));
                 }
 
             }
@@ -101,7 +98,7 @@ contract Main is JobSearch{
         return _isCollabVerified[contractAddress];
     }
     /**
-    @ dev Update the _beforeUserUpdate hook to restrict the UserBase.sol special functions
+    * @dev Update the _beforeUserUpdate hook to restrict the UserBase.sol special functions
      */
     function _beforeUserUpdate(address msgSender) internal virtual override{
         require(_salaryVerified(msgSender));

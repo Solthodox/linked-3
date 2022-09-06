@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 /**
 * @notice A simple integration of a referrals program to incentivate the use of the platform
  */
@@ -39,6 +39,11 @@ contract Referrals{
         return 
             _referralCode.length> 1 ?  price - (price *  _getDiscount(_referralCode) / 1000 )
             : price;
+    }
+
+    function getReferral(address user) internal view returns(bytes memory){
+        return abi.encodePacked(user);
+
     }
 
 }

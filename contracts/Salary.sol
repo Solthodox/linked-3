@@ -1,6 +1,16 @@
 // SPDX-License-Identifier: MIT
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-pragma solidty ^0.8.9;
+pragma solidity ^0.8.9;
+
+interface IERC20{
+    function symbol() external view  returns (string memory) ;
+    
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) external returns (bool);
+
+}
 
 contract Salary {
     address private _owner;
@@ -43,29 +53,29 @@ contract Salary {
     constructor (
         address owner,
         address developer,
-        address[] memory tokenAddreses , 
+        address[] memory tokenAddresses , 
         uint256 contractDuration, 
         uint256[] memory compensations,
         uint256 _collateral
     ) 
-    Ownable() {
+     {
         require(contractDuration>0, "Duration must be greater than 0.");
         _paymentTokens[0]==address(0);
         _compensations[0]==0;
 
-        for(uint526 i=0; i < tokenAddreses.length; i++){
+        for(uint256 i=0; i < tokenAddresses.length; i++){
             require(compensations[i]>0,"You must pay something.");
 
-            if(bytes(IERC20(tokenAddresses[i]).symbol).length<1)
-                revert tokenNotFound(tokenAddresses[i]);
+            if(bytes(IERC20(tokenAddresses[i]).symbol()).length<1)
+                revert TokenNotFound(tokenAddresses[i]);
 
 
-            _paymentTokens.push(tokenAddreses[i]);
+            _paymentTokens.push(tokenAddresses[i]);
             _compensations.push(compensations[i]);
         }
         _owner = owner;
         _developer = developer;
-        _collateral = collateral;
+        _collateral = _collateral;
         _deadLine = block.timestamp + contractDuration;
     }
     
@@ -75,12 +85,12 @@ contract Salary {
         onlyDeveloper
         contractActive            
     {
-        if(_tokensByIndex(tokenAddress) == 0) 
-            revert tokenNotFound(tokenAddress);
+        if(_tokenByIndex(tokenAddress) == 0) 
+            revert TokenNotFound(tokenAddress);
         
         if(!IERC20(tokenAddress).transferFrom
         (
-            owner() , msg.sender , compensation)
+            owner() , msg.sender , _compensations[_tokenByIndex(tokenAddress)])
         )
         _paymentMissed=true;
        
@@ -88,14 +98,14 @@ contract Salary {
     }
 
 
-    function pullCollateral(bool breakContract) 
+    function pullCollateral(bool _breakContract) 
         public 
         onlyDeveloper
         withdrawalEnabled
     {
         (bool success , ) = msg.sender.call{value : _collateral}('');
         if(!success) revert PaymentError();
-        if(breakContract) breakContract();
+        if(_breakContract==true) {breakContract();}
     }
 
 
@@ -117,10 +127,10 @@ contract Salary {
         return _ended;
 
     }
-    function paymentTokens() public view returns(address[]){
+    function paymentTokens() public view returns(address[] memory){
         return _paymentTokens;
     }
-    function compensations() public view returns(uint256[]){
+    function compensations() public view returns(uint256[] memory){
         return _compensations;
         
     }
@@ -148,9 +158,9 @@ contract Salary {
     
 
     function _tokenByIndex(address _tokenAddress) internal view returns(uint256){
-         for(uint256 i=0; i< _paymentTokens.length; i++;){
+         for(uint256 i=0; i< _paymentTokens.length; i++){
             if(_paymentTokens[i]==_tokenAddress)
-                return _paymentTokens[i];
+                return i;
             
         }
         return 0;// returns 0 if not found

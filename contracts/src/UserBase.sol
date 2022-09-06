@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 /**
 * Base contract for platform users(developers) functions
  */
@@ -63,6 +63,14 @@ contract userBase{
         _accounts[_addressToUser[_account]].trustLevel += _newTrust;
     }
     /**
+    * @dev Adds a new collaboration to a uses's profile
+
+    */
+
+    function _joinCollab(address _account , address _contractAddress) internal {
+        _accounts[_addressToUser[_account]].projects.push(_contractAddress);
+    }
+    /**
     * Checks if an address is a contract using assembly
      */
     
@@ -102,6 +110,10 @@ contract userBase{
             u.contracts
         );
     }
+    function addressToUser(address account) internal view returns(uint256){
+        return _addressToUser[account];
+    }
+
     // Internal function that works as a hook that can be updated later
     function _beforeUserUpdate(address msgSender) internal virtual{}
   

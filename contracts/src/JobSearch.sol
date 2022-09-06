@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+pragma solidity ^0.8.9;
+
 import "./Referrals.sol";
 import "../Salary.sol";
 import "./UserBase.sol";
@@ -32,7 +32,7 @@ contract JobSearch is userBase , CompanyBase , Referrals{
         address company;
         string role;
         uint256 experience;
-        uint256 trustLevel;
+        int256 trustLevel;
         address[] appliants;
         bool closed;
 
@@ -44,16 +44,13 @@ contract JobSearch is userBase , CompanyBase , Referrals{
         - Users Github url => if its fake it will be reported later
         - ReferralCode(optional)
     */
-    function registerUser(string memory githubURI , bytes referralCode)
+    function registerUser(string memory githubURI , bytes memory referralCode)
         public  
         payLinked3(_useReferral(referralCode, newUserPrice()))
     {
         require(!_isContract(msg.sender) , "Sorry, only EOAs can call this function");
-        if(referralCode!=""){
-            _useReferral(msg.sender , referralCode , newUserPrice());
-        }
         _addUser(githubURI, msg.sender);
-        _setReferral(msg.sener);
+        _setReferral(msg.sender);
     }
 
     /**
@@ -63,15 +60,11 @@ contract JobSearch is userBase , CompanyBase , Referrals{
         - Company website url
         - Referral Code(optional)
     */
-    function registerCompany(string memory name , string memory mainPageURI , bytes referralCode) 
+    function registerCompany(string memory name , string memory mainPageURI , bytes memory referralCode) 
         public 
         payLinked3(_useReferral(referralCode, newCompanyPrice()))
     {
         require(!_isContract(msg.sender) , "Sorry, only EOAs can call this function");
-        if(referralCode!=""){
-            _useReferral(msg.sender , referralCode , newCompaniesPrice());
-        }
-
         _addCompany(name, mainPageURI , msg.sender);
 
     }
@@ -87,7 +80,7 @@ contract JobSearch is userBase , CompanyBase , Referrals{
     (
         string memory role, 
         uint256 experience,
-        uint256 trustLevel 
+        int256 trustLevel 
     )public 
     onlyCompanies
     payLinked3(newJobOfferPrice())   
@@ -113,11 +106,11 @@ contract JobSearch is userBase , CompanyBase , Referrals{
         require(_offers[offerId].company!=address(0), "Offer not found");
         require(!_offers[offerId].closed, "Offer not available anymore");
         require(
-            _offers[offerId].experience<=_addressToUser[msg.sender].experience
-            && !_offers[offerId].trustLevel <= _addressToUser[msg.sender].trustLevel,
+            _offers[offerId].experience <= users()[addressToUser(msg.sender)].experience
+            && _offers[offerId].trustLevel <= users()[addressToUser(msg.sender)].trustLevel ,
             "Sorry , you don't meet the requirements"
         );
-        _offers[offerId].appliants.push[msg.sender];
+        _offers[offerId].appliants.push(msg.sender);
     }
 
     /**
@@ -132,28 +125,28 @@ contract JobSearch is userBase , CompanyBase , Referrals{
      */
     function hire(
         address developer,
-        address[] memory tokenAddreses , 
+        address[] memory tokenAddresses , 
         uint256 contractDuration, 
         uint256[] memory compensations,
         uint256 _collateral
     ) public onlyCompanies{
-        require(_addressToUser[developer].account!=address(0),"Developer not found");
+        require(users()[addressToUser(developer)].account!=address(0),"Developer not found");
         Salary newSalaryContract = new Salary(
             msg.sender,
             developer,
             tokenAddresses,
             contractDuration,
             compensations,
-            collateral
+            _collateral
         );
         _isSalaryVerified[address(newSalaryContract)]=true;
-        _hire(_addressToCompany[msg.sender]);
+        _hire(addressToCompany(msg.sender) , developer);
         _getHired(developer , address(newSalaryContract));
 
     }
 
     function closeOffer(uint256 offerId) public onlyCompanies{
-        require(_offers[offerId].company=msg.sender);
+        require(_offers[offerId].company==msg.sender);
         _offers[offerId].closed = true;
         
     }
@@ -170,7 +163,7 @@ contract JobSearch is userBase , CompanyBase , Referrals{
     }
 
     function newJobOfferPrice() public view returns(uint256){
-        uint526 price = (100 *10**18)  + users().length;
+        uint256 price = (100 *10**18)  + users().length;
 
     }
     // All offers
