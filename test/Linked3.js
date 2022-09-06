@@ -30,30 +30,21 @@ describe("Linked3" , ()=>{
 
     })
  
-        it("Registers user correctly" , async()=>{
-            const register = await main.registerUser("hjdhkdf" , "")
-            await register.wait()
-            
-        })
-
-        it("Registers Companies correctly" , async()=>{
-            const referral = await main.getReferral(deployer.address)
-            const register = await main.registerCompany("hjdhkdf" , referral)
-            await register.wait()
-            
-        })
+    it("Registers user correctly" , async()=>{
+        
+        const register = await main.registerUser("hjdhkdf" ,ethers.utils.formatBytes32String(""))
+        await register.wait()
+        
+    })
+    
+    it("Registers Companies correctly" , async()=>{
+        const referral = await main.getReferral(deployer.address)
+        const register = await main.registerCompany("hjdhkdf" , referral)
+        await register.wait()
+        
+    })
 
 
    
 
-    // describe("Borrowing Funds" , () => {
-    //     it("Should borrow funds from the pool", async function(){
-    //         let amount = toEther(50)
-    //         const tx = await receiver.executeFlashLoan(amount);
-    //         await tx.wait()
-    //         expect(tx).to.emit(FlashLoanReceiver , loanReceived)
-    //             .withArgs(token.address , amount)
-    //     })
-
-    // })
 })
