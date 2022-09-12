@@ -3,19 +3,17 @@ pragma solidity ^0.8.0;
 import "./src/JobSearch.sol";
 import "./Collab.sol";
 
-
-
 /**
-  *Main contract of the project
-  *Inherits from JobSearch
+ *Main contract of the project
+ *Inherits from JobSearch
  */
 
-contract main is JobSearch{
-    uint256 _collabCount;//indexer
+contract main is JobSearch {
+    uint256 _collabCount; //indexer
     mapping(address => bool) private _isCollabVerified; //proof that a contract object has been created from
-   //the struct object of a project    
+    //the struct object of a project
 
-    struct Project{
+    struct Project {
         uint256 id;
         string gitHubURI;
         address creator;
@@ -24,11 +22,9 @@ contract main is JobSearch{
         uint256 deadLine;
     }
 
-    Project[] private _projects;//list with all the project proposals in it
+    Project[] private _projects; //list with all the project proposals in it
 
-
-
-    constructor(address tokenAddress) JobSearch(tokenAddress){}
+    constructor(address tokenAddress) JobSearch(tokenAddress) {}
 
     /**
     **@notice Function to make a collaboration proposal
@@ -38,28 +34,32 @@ contract main is JobSearch{
         - The time it will be available for
      */
 
-    function collabProposal(string memory gitHubURI ,uint256 participants , uint256 waitTime) public onlyUsers{
+    function collabProposal(
+        string memory gitHubURI,
+        uint256 participants,
+        uint256 waitTime
+    ) public onlyUsers {
         require(
-            bytes(gitHubURI).length>0 
-            && participants>=2 
-            && waitTime>0,
-             "The settings aren't correct.");
+            bytes(gitHubURI).length > 0 && participants >= 2 && waitTime > 0,
+            "The settings aren't correct."
+        );
         _projects[_collabCount].id = _collabCount;
         _projects[_collabCount].gitHubURI = gitHubURI;
         _projects[_collabCount].creator = msg.sender;
         _projects[_collabCount].participants = participants;
         _projects[_collabCount].deadLine = block.timestamp + waitTime;
-        _collabCount ++;
+        _collabCount++;
     }
 
     /**
-    *Function to join a collaboration proposal
+     *Function to join a collaboration proposal
      */
-    
-    function joinCollab(uint256 collabId) public onlyUsers{
-        require(_collabCount>collabId , "Collab not found.");
+
+    function joinCollab(uint256 collabId) public onlyUsers {
+        require(_collabCount > collabId, "Collab not found.");
         _projects[collabId].candidates.push(msg.sender);
     }
+
     /**
     ** @notice Function to create start the project 
     * @dev Should check if
@@ -69,38 +69,53 @@ contract main is JobSearch{
         have requested to join
         - Creates a new (Collab.sol) contract 
      */
-    function submit(uint256 collabId , address [] memory selectedCandidates) public onlyUsers{
+    function submit(uint256 collabId, address[] memory selectedCandidates)
+        public
+        onlyUsers
+    {
         Project memory _collab = _projects[collabId];
-        require(_collab.creator==msg.sender 
-            && block.timestamp > _collab.deadLine
-            , "You are not the creator of this project.");
-        
-        uint256 found;
-        Collab newCollab = new Collab(_collab.gitHubURI , selectedCandidates, msg.sender , address(this));
-        for(uint256 i=0 ; i<_collab.candidates.length; i++){
-            for(uint256 j=0; i<selectedCandidates.length ; i++){
-                if(_collab.candidates[i] == selectedCandidates[j]){
-                    found++;
-                    _joinCollab(selectedCandidates[j] , address(newCollab));
-                }
+        require(
+            _collab.creator == msg.sender && block.timestamp > _collab.deadLine,
+            "You are not the creator of this project."
+        );
 
+        uint256 found;
+        Collab newCollab = new Collab(
+            _collab.gitHubURI,
+            selectedCandidates,
+            msg.sender,
+            address(this)
+        );
+        for (uint256 i = 0; i < _collab.candidates.length; i++) {
+            for (uint256 j = 0; i < selectedCandidates.length; i++) {
+                if (_collab.candidates[i] == selectedCandidates[j]) {
+                    found++;
+                    _joinCollab(selectedCandidates[j], address(newCollab));
+                }
             }
         }
-        require(found==selectedCandidates.length , "You didnt select candidates correctly");
-
+        require(
+            found == selectedCandidates.length,
+            "You didnt select candidates correctly"
+        );
     }
 
     /**
-    *@notice Checks if a smart contract is a Collab contract created by this
+     *@notice Checks if a smart contract is a Collab contract created by this
      */
 
-    function _collabVerified(address contractAddress) internal view returns(bool){
+    function _collabVerified(address contractAddress)
+        internal
+        view
+        returns (bool)
+    {
         return _isCollabVerified[contractAddress];
     }
+
     /**
-    * @dev Update the _beforeUserUpdate hook to restrict the UserBase.sol special functions
+     * @dev Update the _beforeUserUpdate hook to restrict the UserBase.sol special functions
      */
-    function _beforeUserUpdate(address msgSender) internal virtual override{
+    function _beforeUserUpdate(address msgSender) internal virtual override {
         require(_salaryVerified(msgSender));
     }
 }
