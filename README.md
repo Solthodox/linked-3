@@ -23,7 +23,7 @@ For detailed documentation , see [Main.sol](https://github.com/XabierOterino/Lin
 
 ### Collab
 
-Contract to manage team work of different collaborations. All the contributors will need to deposit a collateral as a bail of their good intentions. All participants will have the option to raise or decrease other's reputations based on their experience working with them. Of course if most of contributors agree, a contributor can lose its collateral. See [Salary.sol](https://github.com/XabierOterino/Linked3-JobLanding/blob/main/contracts/Collab.sol) for more.
+Contract to manage team work of different collaborations. All the contributors will need to deposit a collateral as a bail of their good intentions. All participants will have the option to raise or decrease other's reputations based on their experience working with them. Of course if most of contributors agree, a contributor can lose its collateral. See [Collab.sol](https://github.com/XabierOterino/Linked3-JobLanding/blob/main/contracts/Collab.sol) for more.
 
 ### Salary
 
@@ -35,3 +35,8 @@ More details in [Salary.sol](https://github.com/XabierOterino/Linked3-JobLanding
 ### Linked3
 
 A mock token of the ERC-20 token used by the app.
+
+## Initialization
+```shell
+npx hardhat run scripts/deploy.js
+```
