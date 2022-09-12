@@ -19,4 +19,4 @@ This contract has all the main functionalitties of the app such as :
 - Post collab proposals and join them
 - Post job offes and apply for them
 
-For detailed documentation , see
+For detailed documentation , see [Main.sol](https://github.com/XabierOterino/Linked3-JobLanding/blob/main/contracts/Main.sol)
